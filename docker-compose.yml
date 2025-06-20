@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: job_recommendation_db
+    environment:
+      POSTGRES_DB: job_recommendations
+      POSTGRES_USER: jobuser
+      POSTGRES_PASSWORD: jobpassword
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobuser -d job_recommendations"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - job_network
+
+  # Node.js Application
+  app:
+    build: .
+    container_name: job_recommendation_app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - PGUSER=jobuser
+      - PGPASSWORD=jobpassword
+      - PGHOST=postgres
+      - PGDATABASE=job_recommendations
+      - PGPORT=5432
+      - HF_API_KEY=${HF_API_KEY}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./public:/app/public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - job_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  job_network:
+    driver: bridge

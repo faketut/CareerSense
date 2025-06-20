@@ -1,0 +1,51 @@
+# docker-compose.dev.yml
+# Development version with hot reload
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: job_recommendation_db_dev
+    environment:
+      POSTGRES_DB: job_recommendations
+      POSTGRES_USER: jobuser
+      POSTGRES_PASSWORD: jobpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - job_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: job_recommendation_app_dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - PGUSER=jobuser
+      - PGPASSWORD=jobpassword
+      - PGHOST=postgres
+      - PGDATABASE=job_recommendations
+      - PGPORT=5432
+      - HF_API_KEY=${HF_API_KEY}
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    depends_on:
+      - postgres
+    networks:
+      - job_network
+
+volumes:
+  postgres_dev_data:
+
+networks:
+  job_network:
+    driver: bridge

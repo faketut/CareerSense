@@ -1,0 +1,37 @@
+# Dockerfile.dev
+FROM node:18-alpine
+
+# Install system dependencies and nodemon
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    musl-dev \
+    giflib-dev \
+    pixman-dev \
+    pangomm-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    curl
+
+WORKDIR /app
+
+# Install nodemon globally for development
+RUN npm install -g nodemon
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm install
+
+# Create uploads directory
+RUN mkdir -p uploads
+
+EXPOSE 3000
+
+# Use nodemon for development
+CMD ["nodemon", "server.js"]

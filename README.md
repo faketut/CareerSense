@@ -1,239 +1,255 @@
-# CareerSense - AI Job Recommendation System
+# Job Recommendation System - Docker Setup
 
-A modern, AI-powered job recommendation system with two intelligent approaches to help users find their perfect career opportunities.
+This guide will help you set up the complete job recommendation system using Docker, including PostgreSQL with pgvector extension.
 
-## 🌟 Features
+## Prerequisites
 
-### Two Recommendation Systems
-
-1. **PDF Resume Analysis System**
-   - Upload your resume in PDF format
-   - AI extracts and analyzes your skills and experience
-   - Provides personalized job recommendations based on your profile
-   - Shows extracted resume text for verification
-
-2. **Smart Text-Based Search System**
-   - Natural language job search queries
-   - AI understands context and preferences
-   - Intelligent filtering by location, job title, company, or job type
-   - Example queries: "Software developer in New York", "Remote marketing jobs"
-
-### Modern Web Interface
-
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
-- **Beautiful UI**: Modern gradient design with smooth animations
-- **Interactive Elements**: Drag-and-drop file upload, real-time search, modal job details
-- **User-Friendly**: Intuitive navigation with tabbed interface
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm or yarn
+- Docker Desktop installed
+- Docker Compose installed
 - Hugging Face API key
 
-### Installation
+## Quick Start
 
-1. **Clone or download the project**
-   ```bash
-   cd CareerSense
-   ```
+### 1. Clone and Setup
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   Create a `.env` file in the root directory:
-   ```
-   HF_API_KEY=your_hugging_face_api_key_here
-   PORT=3000
-   ```
-
-4. **Start the server**
-   ```bash
-   npm start
-   ```
-
-5. **Open your browser**
-   Navigate to `http://localhost:3000`
-
-## 📁 Project Structure
-
-```
-CareerSense/
-├── public/                 # Frontend files
-│   ├── index.html         # Main HTML interface
-│   ├── styles.css         # Modern CSS styling
-│   └── script.js          # Frontend JavaScript
-├── uploads/               # Temporary PDF uploads
-├── server.js              # Express.js server
-├── jobPostings.js         # Job database
-├── smartRecommendationSystem.js  # Original PDF system
-├── jobRecommendationSystem.js    # Original text system
-├── package.json           # Dependencies and scripts
-└── README.md             # This file
-```
-
-## 🔧 How It Works
-
-### PDF Resume Analysis
-
-1. **Upload**: Drag and drop or select your resume PDF
-2. **Processing**: AI extracts text and generates embeddings
-3. **Matching**: Compares your profile with job database using similarity search
-4. **Results**: Shows top 5 matching jobs with relevance scores
-
-### Text-Based Search
-
-1. **Query**: Enter natural language search (e.g., "Software developer in San Francisco")
-2. **Analysis**: AI classifies your query to understand preferences
-3. **Filtering**: Applies intelligent filters based on detected criteria
-4. **Matching**: Finds jobs using semantic similarity search
-5. **Results**: Displays filtered and ranked job recommendations
-
-## 🛠️ Technical Stack
-
-### Backend
-- **Node.js** with Express.js server
-- **ChromaDB** for vector database and similarity search
-- **Hugging Face Inference API** for embeddings and text classification
-- **PDF-parse** for resume text extraction
-- **Multer** for file upload handling
-
-### Frontend
-- **Vanilla JavaScript** for dynamic interactions
-- **Modern CSS** with Flexbox and Grid
-- **Font Awesome** icons
-- **Google Fonts** (Inter) for typography
-- **Responsive design** with mobile-first approach
-
-### AI/ML Components
-- **Sentence Transformers** (all-MiniLM-L6-v2) for text embeddings
-- **Zero-shot Classification** (facebook/bart-large-mnli) for query understanding
-- **Vector Similarity Search** for job matching
-
-## 🎯 Usage Examples
-
-### PDF Resume Analysis
-1. Click on "PDF Resume Analysis" tab
-2. Upload your resume PDF file
-3. Click "Analyze Resume & Get Recommendations"
-4. View extracted text and job recommendations
-5. Click on any job to see detailed information
-
-### Text-Based Search
-1. Click on "Text-Based Search" tab
-2. Enter your search query or click example tags
-3. Click "Search" or press Enter
-4. View detected criteria and job recommendations
-5. Explore job details in the modal
-
-### Example Queries
-- "Software developer in New York"
-- "Remote marketing specialist"
-- "Data scientist at Google"
-- "Full-time project manager"
-- "UX designer in Austin"
-
-## 🔍 API Endpoints
-
-### GET `/api/jobs`
-Returns all available job postings
-
-### POST `/api/recommendations/pdf`
-Upload PDF resume and get job recommendations
-- **Body**: FormData with PDF file
-- **Response**: Job recommendations and extracted text
-
-### POST `/api/recommendations/text`
-Search jobs using text query
-- **Body**: `{ "query": "search string" }`
-- **Response**: Job recommendations and filter criteria
-
-### GET `/api/init`
-Initialize ChromaDB collections with job embeddings
-
-## 🎨 Design Features
-
-### Visual Design
-- **Gradient Background**: Beautiful purple-blue gradient
-- **Glass Morphism**: Semi-transparent cards with backdrop blur
-- **Smooth Animations**: Hover effects and transitions
-- **Modern Typography**: Clean, readable Inter font
-
-### User Experience
-- **Drag & Drop**: Intuitive file upload
-- **Loading States**: Visual feedback during processing
-- **Error Handling**: User-friendly error messages
-- **Responsive**: Works on all screen sizes
-- **Accessibility**: Keyboard navigation and screen reader support
-
-### Interactive Elements
-- **Tab Navigation**: Easy switching between systems
-- **Modal Dialogs**: Detailed job information
-- **Real-time Search**: Instant feedback
-- **Example Tags**: Quick search suggestions
-
-## 🔧 Configuration
-
-### Environment Variables
-- `HF_API_KEY`: Your Hugging Face API key
-- `PORT`: Server port (default: 3000)
-
-### Customization
-- Modify `jobPostings.js` to add your own job database
-- Adjust CSS variables in `styles.css` for branding
-- Update AI models in `server.js` for different embeddings
-
-## 🚀 Deployment
-
-### Local Development
 ```bash
-npm run dev
+# Create project directory
+mkdir job-recommendation-system
+cd job-recommendation-system
+
+# Create required directories
+mkdir -p uploads public init-db
+
+# Create .gitkeep for uploads directory
+touch uploads/.gitkeep
 ```
 
-### Production
+### 2. Environment Configuration
+
+Create a `.env` file in the root directory:
+
 ```bash
-npm start
+# Copy from .env.example
+cp .env.example .env
+
+# Edit .env with your actual Hugging Face API key
+HF_API_KEY=your_actual_huggingface_api_key_here
+NODE_ENV=development
 ```
 
-### Docker (Optional)
-```dockerfile
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
+### 3. Start the System
+
+```bash
+# Build and start all services
+docker-compose up --build -d
+
+# Check if services are running
+docker-compose ps
+
+# View logs
+docker-compose logs -f
 ```
 
-## 🤝 Contributing
+### 4. Initialize Database
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+Once the services are running, initialize the database:
 
-## 📝 License
+```bash
+# Wait for services to be fully ready (about 30 seconds)
+sleep 30
 
-This project is open source and available under the MIT License.
+# Initialize the database with job postings
+curl http://localhost:3000/api/init
 
-## 🙏 Acknowledgments
+# Check health
+curl http://localhost:3000/api/health
+```
 
-- Hugging Face for AI models and API
-- ChromaDB for vector database
-- Font Awesome for icons
-- Google Fonts for typography
+## Development Setup
 
-## 📞 Support
+For development with hot reload:
 
-For questions or issues, please open an issue in the repository or contact the development team.
+```bash
+# Use development compose file
+docker-compose -f docker-compose.dev.yml up --build -d
 
----
+# View logs
+docker-compose -f docker-compose.dev.yml logs -f app
+```
 
-**CareerSense** - Making job search intelligent and intuitive! 🚀
+## Available Endpoints
+
+- **Main Application**: http://localhost:3000
+- **Health Check**: http://localhost:3000/api/health
+- **Initialize DB**: http://localhost:3000/api/init
+- **Get Jobs**: http://localhost:3000/api/jobs
+- **PDF Recommendations**: POST http://localhost:3000/api/recommendations/pdf
+- **Text Recommendations**: POST http://localhost:3000/api/recommendations/text
+
+## Database Access
+
+```bash
+# Connect to PostgreSQL directly
+docker exec -it job_recommendation_db psql -U jobuser -d job_recommendations
+
+# View tables
+\dt
+
+# Check vector extension
+SELECT * FROM pg_extension WHERE extname = 'vector';
+
+# View job postings
+SELECT id, jobtitle, company, location FROM job_postings LIMIT 5;
+```
+
+## Useful Commands
+
+### Docker Management
+
+```bash
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (complete reset)
+docker-compose down -v
+
+# View service logs
+docker-compose logs app
+docker-compose logs postgres
+
+# Rebuild specific service
+docker-compose build app
+docker-compose up app
+
+# Execute commands in running container
+docker exec -it job_recommendation_app sh
+```
+
+### Database Management
+
+```bash
+# Backup database
+docker exec job_recommendation_db pg_dump -U jobuser job_recommendations > backup.sql
+
+# Restore database
+docker exec -i job_recommendation_db psql -U jobuser job_recommendations < backup.sql
+
+# Reset database
+docker-compose down -v
+docker-compose up -d
+curl http://localhost:3000/api/init
+```
+
+## File Structure
+
+```
+job-recommendation-system/
+├── docker-compose.yml          # Production setup
+├── docker-compose.dev.yml      # Development setup
+├── Dockerfile                  # Production image
+├── Dockerfile.dev             # Development image
+├── package.json               # Node.js dependencies
+├── server.js                  # Main application file
+├── jobPostings.js            # Sample job data
+├── .env                      # Environment variables
+├── .dockerignore             # Docker ignore file
+├── init-db/
+│   └── 01-init.sql           # Database initialization
+├── public/
+│   ├── index.html            # Frontend
+│   ├── style.css             # Styles
+│   └── script.js             # Frontend JavaScript
+└── uploads/                  # PDF upload directory
+    └── .gitkeep
+```
+
+## Troubleshooting
+
+### Services Won't Start
+
+```bash
+# Check Docker status
+docker --version
+docker-compose --version
+
+# Check if ports are available
+netstat -tulpn | grep :3000
+netstat -tulpn | grep :5432
+
+# View detailed logs
+docker-compose logs --tail=100
+```
+
+### Database Connection Issues
+
+```bash
+# Check if PostgreSQL is ready
+docker exec job_recommendation_db pg_isready -U jobuser
+
+# Test database connection
+docker exec -it job_recommendation_db psql -U jobuser -d job_recommendations -c "SELECT version();"
+
+# Check vector extension
+docker exec -it job_recommendation_db psql -U jobuser -d job_recommendations -c "SELECT * FROM pg_extension WHERE extname = 'vector';"
+```
+
+### Application Issues
+
+```bash
+# Check application logs
+docker-compose logs app
+
+# Restart application
+docker-compose restart app
+
+# Rebuild application
+docker-compose build app
+docker-compose up app
+```
+
+### Clean Restart
+
+```bash
+# Complete clean restart
+docker-compose down -v --remove-orphans
+docker system prune -f
+docker-compose up --build -d
+```
+
+## Performance Optimization
+
+For production use:
+
+1. **Increase PostgreSQL shared_buffers**: Add to docker-compose.yml
+   ```yaml
+   postgres:
+     command: postgres -c shared_buffers=256MB -c max_connections=200
+   ```
+
+2. **Use production Node.js image**: Already configured in main Dockerfile
+
+3. **Enable PostgreSQL connection pooling**: Consider adding pgbouncer service
+
+4. **Monitor resource usage**:
+   ```bash
+   docker stats
+   ```
+
+## Security Notes
+
+- Change default passwords in production
+- Use Docker secrets for sensitive data
+- Enable SSL for PostgreSQL in production
+- Implement rate limiting for API endpoints
+- Validate and sanitize all inputs
+
+## Next Steps
+
+1. Add your actual job postings data to `jobPostings.js`
+2. Customize the frontend in the `public/` directory
+3. Add authentication if needed
+4. Set up monitoring and logging
+5. Configure backup strategies
+6. Set up CI/CD pipeline
+
+The system is now ready for development and testing!
